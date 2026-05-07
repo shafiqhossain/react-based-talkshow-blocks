@@ -1,0 +1,276 @@
+.block--progress-bar {
+  img {
+    width: 50px;
+  }
+}
+.section-affiliate-talkshow-links {
+  display: flex;
+  flex-flow: row wrap;
+  width: 100%;
+  margin-bottom: 15px;
+
+  .region-affiliate-talkshow-links {
+    display: flex;
+    flex-flow: row wrap;
+    width: 100%;
+    flex-grow: 1;
+
+    .block-affiliate-talkshow-links-wrapper {
+      display: flex;
+      flex-flow: row wrap;
+      width: 100%;
+      flex-grow: 1;
+
+      .block-affiliate-talkshow-links-inner {
+        display: flex;
+        flex-flow: row wrap;
+        width: 100%;
+        flex-grow: 1;
+
+        .block-affiliate-live-info {
+          display: flex;
+          flex-flow: row wrap;
+          width: 100%;
+          flex-grow: 1;
+          justify-content: right;
+
+          .block-affiliate-live-station-info {
+            background: #c6002b;
+            color: #fff;
+            padding: 2px 15px 2px 50px;
+            clip-path: polygon(15% 0, 100% 0, 100% 100%, 0% 100%);
+
+            .block-affiliate-live-on-air {
+              font-weight: bold;
+              font-size: 20px;
+            }
+            .block-affiliate-live-station {
+              display: flex;
+              flex-flow: row wrap;
+              align-items: center;
+
+              .block-live-station-name {
+                font-size: 13px;
+                margin-right: 10px;
+              }
+              .block-live-video-image {
+                display: flex;
+                justify-content: center;
+
+                svg, img {
+                  width: 18px;
+                  height: 18px;
+                  margin-right: 15px;
+                }
+              }
+              .block-live-audio-image {
+                display: flex;
+                justify-content: center;
+
+                svg, img {
+                  width: 18px;
+                  height: 18px;
+                }
+              }
+            }
+          }
+        }
+
+        .block-affiliate-talkshow-inner {
+          display: flex;
+          flex-flow: row wrap;
+          width: 100%;
+          flex-grow: 1;
+
+          .block-affiliate-talkshow-header {
+            background: #067991;
+            border-bottom: 1px solid #0091b2;
+            color: #fff;
+            display: flex;
+            flex-flow: row nowrap;
+            width: 100%;
+            padding: 5px 15px;
+            border-top-left-radius: 8px;
+
+            .block-affiliate-title {
+              display: flex;
+              color: #eff7f9;
+              font-family: "Dancing Script";
+              font-size: 24px;
+            }
+            .block-affiliate-download-link-wrapper {
+              align-self: end;
+              display: flex;
+              justify-content: right;
+              flex-grow: 1;
+
+              a {
+                background: #fff;
+                color: #067991;
+                text-decoration: none;
+                padding: 1px 7px;
+                border-radius: 32px;
+                display: flex;
+                justify-content: center;
+                align-items: center;
+                align-self: center;
+                font-size: 12px;
+              }
+            }
+          }
+          .block-affiliate-talkshow-content {
+            display: flex;
+            flex-flow: row wrap;
+            justify-content: left;
+            border: 1px solid #067991;
+
+            .block-affiliate-talkshow-image-wrapper {
+              display: flex;
+              width: 35%;
+
+              .block--field-include-host-picture {
+                clip-path: polygon(0 0, 100% 0, 75% 100%, 0% 100%);
+                background: #067991;
+                width: 100%;
+
+                img {
+                  max-height: 250px;
+                  width: 100%;
+                }
+              }
+            }
+            .block-affiliate-talkshow-links-wrapper {
+              display: flex;
+              flex-flow: row wrap;
+              width: 48%;
+              padding: 5px 10px;
+
+              .block-affiliate-header-info {
+                width: 100%;
+                margin-bottom: 15px;
+
+                .block-affiliate-header {
+                  color: #c6002b;
+                  font-family: Dancing Script;
+                  font-size: 30px;
+                  font-weight: 800;
+                  text-transform: capitalize;
+                }
+                .block-affiliate-subheader {
+                  font-family: Italiana;
+                  font-size: 14px;
+                  font-style: italic;
+                  width: 100%;
+                  padding-bottom: 0;
+                  color: #0091b2;                }
+              }
+              .block-affiliate-archive-audio-wrapper {
+                width: 100%;
+                display: flex;
+                flex-flow: row wrap;
+                justify-content: left;
+                margin-bottom: 10px;
+
+                .block-affiliate-archive-audio-image-wrapper {
+                  margin-right: 10px;
+
+                  img {}
+                }
+                .block-affiliate-archive-audio-content-wrapper {
+                  .block-audio-link {
+                    text-decoration: none;
+
+                    .block-audio-broadcast {
+                      color: #333;
+                      letter-spacing: 3px;
+                      font-weight: bold;
+                    }
+                    .block-broadcast-date {
+                      font-family: Dancing Script;
+                      font-size: 16px;
+                      font-weight: 800;
+                      text-transform: capitalize;
+                      color: #c6002b;
+
+                      svg, img {
+                        margin-left: 10px;
+                      }
+                    }
+                  }
+                }
+              }
+              .block-affiliate-archive-video-wrapper {
+                width: 100%;
+                display: flex;
+                flex-flow: row wrap;
+                justify-content: left;
+                margin-bottom: 20px;
+
+                .block-affiliate-archive-video-image-wrapper {
+                  margin-right: 10px;
+                  img {}
+                }
+                .block-affiliate-archive-video-content-wrapper {
+                  .block-video-link {
+                    text-decoration: none;
+
+                    .block-video-broadcast {
+                      color: #333;
+                      letter-spacing: 3px;
+                      font-weight: bold;
+                    }
+                    .block-broadcast-date {
+                      font-family: Dancing Script;
+                      font-size: 16px;
+                      font-weight: 800;
+                      text-transform: capitalize;
+                      color: #c6002b;
+
+                      svg, img {
+                        margin-left: 10px;
+                      }
+                    }
+                  }
+                }
+              }
+            }
+            .block-affiliate-talkshow-host-wrapper {
+              display: flex;
+              flex-flow: column wrap;
+              flex-grow: 1;
+              width: 14%;
+              align-items: flex-end;
+              align-self: center;
+              margin-right: 15px;
+
+              .block-affiliate-talkshow-host-image-wrapper {
+                img {
+                  max-width: 105px;
+                  max-height: 105px;
+                  border-radius: 64px;
+                }
+              }
+
+              .block-affiliate-stations-info-wrapper {
+                display: flex;
+                flex-flow: row wrap;
+                justify-content: center;
+                align-items: center;
+                align-self: center;
+                svg, img {
+                  margin-right: 10px;
+                }
+                a {
+                  font-size: 11px;
+                  text-decoration: none;
+                  text-transform: uppercase;
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+
+  }
+}

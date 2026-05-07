@@ -1,0 +1,24 @@
+services:
+    custom_example.feed_data_manager:
+      class: Drupal\custom_example\Service\FeedDataManager
+      arguments: ['@entity_type.manager', '@current_user', '@database', '@logger.factory', '@config.factory', '@base.helper']
+
+    custom_example.resource_manager:
+      class: Drupal\custom_example\Service\ResourceManager
+      arguments: ['@entity_type.manager', '@current_user', '@database', '@logger.factory', '@config.factory', '@plugin.manager.mail', '@email_factory']
+
+    custom_example.external_feed_import_manager:
+      class: Drupal\custom_example\Service\ExternalFeedImportManager
+      arguments: ['@entity_type.manager', '@current_user', '@database', '@logger.factory', '@config.factory', '@custom_example.media_storage_manager']
+
+    custom_example.media_storage_manager:
+      class: Drupal\custom_example\Service\MediaStorageManager
+      arguments: ['@entity_type.manager', '@current_user', '@database', '@logger.factory', '@config.factory', '@file_system', '@file.usage']
+
+    custom_example.query_manager:
+      class: Drupal\custom_example\Service\QueryManager
+      arguments: ['@entity_type.manager', '@current_user', '@database', '@logger.factory', '@config.factory', '@file_url_generator', '@path_alias.manager', '@base.helper']
+
+    custom_example.utility_manager:
+      class: Drupal\custom_example\Service\UtilityManager
+      arguments: ['@entity_type.manager', '@current_user', '@database', '@logger.factory', '@config.factory', '@file_url_generator', '@subscription.data_manager', '@subscription.access_manager']

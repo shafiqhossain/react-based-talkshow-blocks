@@ -1,0 +1,271 @@
+.block--progress-bar {
+  img {
+    width: 50px;
+  }
+}
+.section-live-talkshow {
+
+  .region-live-talkshow {
+    display: flex;
+    flex-flow: row wrap;
+
+    .block-live-talkshow-wrapper {
+      width: 50%;
+      max-width: 50%;
+      display: flex;
+      flex-flow: row wrap;
+      margin-bottom: 20px;
+
+      .block-live-talkshow-inner {
+        margin-right: 10px;
+        border: 1px solid #0091b2;
+        display: flex;
+        flex-flow: column wrap;
+        border-radius: 8px;
+
+        .block--title {
+          display: flex;
+          flex-flow: row nowrap;
+          background: #067991;
+          color: #fff;
+          width: 100%;
+          border-bottom: 1px solid #0091b2;
+          border-top-left-radius: 4px;
+          border-top-right-radius: 4px;
+
+          .block--title-left {
+            display: flex;
+            flex-flow: row wrap;
+            flex-grow: 1;
+
+            .block--sub-title {
+              font-family: 'Dancing Script';
+              font-size: 20px;
+              padding: 5px 10px;
+              color: #eff7f9;
+              width: 100%;
+            }
+
+            .block--station-name {
+              padding: 10px 10px;
+              font-size: 35px;
+              width: 100%;
+              font-family: 'Italiana';
+
+            }
+          }
+
+          .block--title-right {
+            display: flex;
+            flex-flow: row wrap;
+            align-items: center;
+            padding: 0 10px;
+            justify-content: center;
+
+            .block--field-include-audio-or-video {
+              i,svg {
+                width: 30px;
+              }
+            }
+          }
+        }
+
+        .block--inner-content {
+          display: flex;
+          flex-flow: row wrap;
+          padding: 10px 10px;
+
+          .block--item {
+            display: flex;
+            flex-flow: row wrap;
+            align-self: flex-start;
+
+            .block--host-info {
+              display: flex;
+              flex-flow: row nowrap;
+              width: 100%;
+              margin-bottom: 15px;
+
+              .block--host-info-left {
+                display: flex;
+                flex-grow: 1;
+                align-items: center;
+
+                .block--field-include-show-page {
+                  a {
+
+                  }
+                }
+
+                .block--field-include-host-name {
+                  span {
+
+                  }
+
+                  a {
+
+                  }
+                }
+              }
+
+              .block--host-info-right {
+                display: flex;
+                justify-content: right;
+                flex-grow: 1;
+
+                .block--field-include-host-picture {
+                  img {
+                    width: 55px;
+                    border-radius: 32px;
+                  }
+                }
+              }
+            }
+
+            .block--field-station-description {
+              margin-bottom: 15px;
+              flex-grow: 1;
+
+            }
+
+            .block--field-include-banner {
+              img {
+
+              }
+            }
+
+            .block--archive-detail-wrapper {
+              margin: 10px 0 15px 0;
+
+              .block--field-talk-show-detail {
+                .block--label-field-talk-show-detail {
+                  color: #c6002b;
+                  font-family: 'Dancing Script';
+                  font-size: 24px;
+                }
+
+                .block--field-content {
+
+                }
+              }
+
+              .block--field-include-show-categories {
+                width: 100%;
+
+                .block--label-field-include-show-categories {
+                  color: #c6002b;
+                  font-family: 'Dancing Script';
+                  font-size: 24px;
+                }
+
+                .block--field-content {
+
+                }
+              }
+            }
+
+            .block--field-schedule-weekly-or-biweekly {
+              font-family: 'Dancing Script';
+              font-size: 20px;
+              color: #c6002b;
+              margin-top: 10px;
+              margin-bottom: 10px;
+              font-weight: 800;
+              text-transform: capitalize;
+              width: 100%;
+
+              .schedule {
+
+              }
+
+              .separator {
+
+              }
+
+              .station-name {
+
+              }
+
+              .schedule-day {
+
+              }
+            }
+
+            .block--archive-links-wrapper {
+              display: flex;
+              flex-flow: row wrap;
+              align-items: flex-end;
+              width: 100%;
+
+              .block--field-include-program-archives {
+                margin-right: 5px;
+                margin-bottom: 10px;
+
+                a {
+                  color: #fff;
+                  text-decoration: none;
+                  background-color: #0091b2;
+                  padding: 4px 10px;
+                  border-radius: 32px;
+                }
+              }
+
+              .block--field-include-coming-up-soon {
+                margin-right: 5px;
+                margin-bottom: 10px;
+
+                a {
+                  color: #fff;
+                  text-decoration: none;
+                  background-color: #0091b2;
+                  padding: 4px 10px;
+                  border-radius: 32px;
+                }
+              }
+
+              .block--field-include-upcoming-show {
+                margin-right: 5px;
+                margin-bottom: 10px;
+
+                a {
+                  color: #fff;
+                  text-decoration: none;
+                  background-color: #0091b2;
+                  padding: 4px 10px;
+                  border-radius: 32px;
+                }
+              }
+
+              .block--field-include-show-feed {
+                margin-right: 5px;
+                margin-bottom: 10px;
+
+                a {
+                  color: #fff;
+                  text-decoration: none;
+                  background-color: #0091b2;
+                  padding: 4px 10px;
+                  border-radius: 32px;
+                }
+              }
+
+              .block--field-include-mrss-feed {
+                margin-right: 5px;
+                margin-bottom: 10px;
+
+                a {
+                  color: #fff;
+                  text-decoration: none;
+                  background-color: #0091b2;
+                  padding: 4px 10px;
+                  border-radius: 32px;
+                }
+              }
+            }
+          }
+
+        }
+      }
+    }
+  }
+}

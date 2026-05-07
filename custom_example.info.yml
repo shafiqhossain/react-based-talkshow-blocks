@@ -1,0 +1,16 @@
+name: Custom BBSRadio
+type: module
+description: Custom module for BBS Radio.
+core_version_requirement: ^9 || ^10
+package: Bbsradio
+
+dependencies:
+  - symfony_mailer:symfony_mailer
+  - search_api
+
+# Information added by Drupal.org packaging script on 2020-12-31
+version: '2.0'
+project: 'Bbsradio'
+
+# libraries:
+#  - react_example_theme/react_app

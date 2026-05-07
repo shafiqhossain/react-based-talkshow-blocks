@@ -1,0 +1,33 @@
+# Affiliate Download
+custom_example.affiliate_download:
+  path: '/bbsradio/affiliate-download/{talkshow_filename}'
+  defaults:
+    _controller:  '\Drupal\custom_example\Controller\UserResourceController::affiliateDownload'
+    _title: 'Affiliate download'
+    talkshow_filename: ''
+  requirements:
+    _access: 'TRUE'
+  options:
+    no_cache: TRUE
+    parameters:
+      talkshow_filename:
+        type: String
+
+
+# Station Live Talk show
+custom_example.live_station_talkshow:
+  path: '/api/v1/bbsradio/station/live-talkshow'
+  defaults:
+    _controller:  '\Drupal\custom_example\Controller\UserResourceController::getStationLiveTalkshows'
+    _title: 'Station live talk show'
+  requirements:
+    _access: 'TRUE'
+
+# Affiliate Talk show links
+custom_example.affiliate_talkshow_links:
+  path: '/api/v1/bbsradio/affiliate-talkshow-links'
+  defaults:
+    _controller:  '\Drupal\custom_example\Controller\UserResourceController::getAffiliateTalkshowLinks'
+    _title: 'Affiliate talk show links'
+  requirements:
+    _access: 'TRUE'

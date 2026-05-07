@@ -1,0 +1,505 @@
+<?php
+/**
+ * @file
+ * Primarily Drupal hooks and global API functions to manipulate views.
+ *
+ * This is the main module file for Views. The main entry points into
+ * this module are views_page() and views_block(), where it handles
+ * incoming page and block requests.
+ */
+
+use Drupal\Core\Form\FormStateInterface;
+use Drupal\Core\Render\Markup;
+use Drupal\Core\Url;
+use Drupal\node\Entity\Node;
+use Drupal\Core\Database\Query\AlterableInterface;
+
+/**
+ * Implements hook_theme().
+ *
+ * Defines the theming capabilities provided by this module.
+ */
+function custom_example_theme($existing, $type, $theme, $path) {
+  $theme = [
+    'talk_show_content_rss' => [
+      'variables' => [
+        'row' => NULL,
+        'archives' => NULL,
+      ],
+    ],
+    'talk_show_content_recent_rss' => [
+      'variables' => [
+        'row' => NULL,
+        'talkshows' => NULL,
+      ],
+    ],
+    'talk_show_content_mrss' => [
+      'variables' => [
+        'row' => NULL,
+        'archives' => NULL,
+      ],
+    ],
+
+    'mail_verification_form' => [
+      'render element' => 'form',
+    ],
+    'verify_email_form' => [
+      'render element' => 'form',
+    ],
+    'phone_verification_form' => [
+      'render element' => 'form',
+    ],
+    'verify_phone_form' => [
+      'render element' => 'form',
+    ],
+    'verify_user_resource_form' => [
+      'render element' => 'form',
+    ],
+
+    'external_talkshow_view' => [
+      'variables' => [
+        'talkshow_data' => NULL,
+        'fetch_date_label' => NULL,
+        'merge_date_label' => NULL,
+        'publish_date_label' => NULL,
+        'status_label' => NULL,
+      ],
+    ],
+    'external_archive_view' => [
+      'variables' => [
+        'archive_data' => NULL,
+        'fetch_date_label' => NULL,
+        'merge_date_label' => NULL,
+        'publish_date_label' => NULL,
+        'status_label' => NULL,
+      ],
+    ],
+  ];
+
+  return $theme;
+}
+
+/**
+ * Implementation of hook_mail()
+ */
+/*
+function custom_example_mail($key, &$message, $params) {
+  switch($key) {
+    default:
+      $message['subject'] = $params['subject'];
+      $message['body'][] = $params['body'];
+      // $message['headers']['Content-Type'] = 'text/html; charset=UTF-8; format=flowed; delsp=yes';
+      break;
+  }
+}
+*/
+
+/**
+ * Implements hook_page_attachments_alters().
+ */
+function custom_example_page_attachments_alter(array &$attachments) {
+  // Attach the flot asset on every page.
+  $attachments['#attached']['library'][] = 'custom_example/bbsradio';
+}
+
+/**
+ * Implements hook_form_alter().
+ */
+function custom_example_form_alter(&$form, FormStateInterface &$form_state, $form_id) {
+  $user = \Drupal::currentUser();
+
+  if ($form_id == 'node_archive_descriptions_form' || $form_id == "node_archive_descriptions_edit_form") {
+    $currentUsername = $user->getAccountName();
+    $currentUid = $user->id();
+
+    if (empty($form_state->getformObject()->getEntity()->id())) {
+      $form["field_archive_show_sub_headline"]["widget"][0]["value"]["#default_value"] = "with " . $currentUsername;
+      $form["field_archive_show_story"]["widget"][0]["#default_value"] = "with " . $currentUsername;
+
+      /*
+       * Show tags and archive category default value set
+      */
+      if (!empty($currentUid)) {
+        $database = \Drupal::database();
+        $taxonomyTerm = $database->query("select ti.tid, td.name, td.vid from taxonomy_index ti, taxonomy_term_field_data td where ti.tid = td.tid AND ti.nid = (select nid from node_field_data where uid = '$currentUid' and type ='archive_descriptions' order by nid desc limit 0,1)");
+        $terms = $taxonomyTerm->fetchAll();
+        $showTag = [];
+        $arichiveCategory = [];
+        $itunesCategory = [];
+
+        if (count($terms) > 0) {
+          foreach ($terms as $termDate) {
+            if ($termDate->vid == 'tags') {
+              $showTag[$termDate->tid] = \Drupal\taxonomy\Entity\Term::load($termDate->tid);
+            }
+            elseif ($termDate->vid == 'show_broadcast_categories') {
+              $arichiveCategory[$termDate->tid]['target_id'] = $termDate->tid;
+            }
+            elseif ($termDate->vid == 'views_rss_itunes_category') {
+              $itunesCategory[$termDate->tid]['target_id'] = $termDate->tid;
+            }
+          }
+        }
+        $form['field_archive_tags']['widget']['target_id']['#default_value'] = $showTag;
+        $form['field_archive_category']['widget']['#default_value'] = $arichiveCategory;
+        $form['field_archive_itunes_category']['widget']['#default_value'] = $itunesCategory;
+      }
+    }
+  }
+
+}
+
+/**
+ * Guest Occupation Field presaved for Twittercard Tokens
+ * Implementation of hook_node_presave()
+*/
+function custom_example_node_presave(Node $node) {
+  $database = \Drupal::database();
+
+  $description = '';
+  $node_title_description1 = '';
+  $node_title_description2 = '';
+
+  if ($node->bundle() == 'highlight_upcoming_guest') {
+    if (!empty($node->field_highlight_broadcasting_dat->value)) {
+      $tmstmp = strtotime($node->get('field_highlight_broadcasting_dat')->value) - 25200;
+      $cnv_dt = date('F j, Y', $tmstmp);
+    }
+
+    if ($node->hasField('field_show_guest_being_featured')) {
+      if (array_filter($node->get('field_show_guest_being_featured')->getValue())) {
+        foreach ($node->get('field_show_guest_being_featured')->getValue() as $nids) {
+          $guestNid1 = $nids['target_id'];
+          $fieldGuestOcuupation = "";
+          $description2 = "";
+
+          if (isset($guestNid1)) {
+            $node_title_description2 = $database->select('node_field_data', 'n')
+              ->condition('n.nid', $guestNid1, "=")
+              ->fields('n', array('title'))
+              ->execute()->fetchField();
+
+            $fieldGuestOcuupation = $database->select('node__field_past_guest_occupation', 'fdfpgo')
+              ->condition('fdfpgo.entity_id', $guestNid1, "=")
+              ->fields('fdfpgo', array('field_past_guest_occupation_value'))
+              ->execute()->fetchField();
+
+            if (isset($fieldGuestOcuupation)) {
+              if ($description != "") {
+                $description = $description . " and ";
+              }
+
+              $description = $description . $node_title_description2 . ", " . $cnv_dt . ", " . $fieldGuestOcuupation;
+
+            }
+          }
+        }
+      }
+    }
+
+    if ($node->hasField('field_highlight_interview_candid')) {
+      if (array_filter($node->get('field_highlight_interview_candid')->getValue())) {
+        foreach ($node->get('field_highlight_interview_candid')->getValue() as $nids1) {
+          $guestNid2 = $nids1['target_id'];
+
+          if (isset($guestNid2)) {
+
+            $node_title_description2 = $database->select('node_field_data', 'n')
+              ->condition('n.nid', $guestNid2, "=")
+              ->fields('n', ['title'])
+              ->execute()->fetchField();
+
+            $fieldGuestOcuupation = $database->select('node__field_guest_occupation', 'fdfgo')
+              ->condition('fdfgo.entity_id', $guestNid2, "=")
+              ->fields('fdfgo', ['field_guest_occupation_value'])
+              ->execute()->fetchField();
+
+            if (isset($fieldGuestOcuupation)) {
+              if ($node_title_description1 != "") {
+                $node_title_description1 = $node_title_description1 . " and ";
+              }
+
+              $description1 = $node_title_description1 . $node_title_description2 . ", " . $cnv_dt . ", " . $fieldGuestOcuupation;
+            }
+          }
+        }
+      }
+    }
+
+    if ($description != "") {
+      if (strlen($description) > 255) {
+        $description = substr($description, 0, 255);
+      }
+      $node->set('field_guest_occupation_hide', $description);
+    }
+    else {
+      $node->set('field_guest_occupation_hide', $node_title_description1);
+    }
+  }
+}
+
+/**
+ * Implementation of hook_node_presave()
+ */
+function custom_example_user_presave(\Drupal\user\UserInterface $user) {
+  if (!$user->isNew()) {
+    if ($user->original->get('field_user_alert_email')->getString() != $user->get('field_user_alert_email')->getString()) {
+      $user->set('field_mail_verify_status', 0);
+    }
+    if ($user->original->get('field_user_alert_phone')->getString() != $user->get('field_user_alert_phone')->getString()) {
+      $user->set('field_user_phone_verify_status', 0);
+    }
+  }
+}
+
+
+/**
+ * Get Username by uid
+**/
+function geGuestnameByid($nid) {
+  $result1='';
+
+  if (!empty($nid)) {
+    $query = \Drupal::database()->select('node_field_data', 'n');
+    $query->fields('n', array('title'));
+    $query->fields('fdfpgo', array('field_past_guest_occupation_value'));
+    $query->join('node__field_past_guest_occupation', 'fdfpgo', 'fdfpgo.entity_id=n.nid');
+    $query->condition('n.nid', $nid, "=");
+
+    $result = $query->execute()->fetchAll();
+
+    if (array_filter($result)) {
+      $correctTitle = str_replace("Guest, ", "", $result[0]->title);
+      $result1 = " - " . $correctTitle . " - " . $result[0]->field_past_guest_occupation_value;
+    }
+  }
+
+  return $result1;
+}
+
+function geGuestPastHistory($nid) {
+  $result2 = '';
+
+  $query = \Drupal::database()->select('node__field_past_guest_category','fdfpgc');
+  $query->fields('fdfpgc', array('field_past_guest_category_target_id'));
+  $query->condition('fdfpgc.entity_id', $nid, "=");
+
+  $result = $query->execute()->fetchAll();
+  if(array_filter($result)) {
+    foreach ($result as $data) {
+      if (!empty($result2)) {
+        $result2 .= ", ";
+      }
+
+      $query1 = \Drupal::database()->select('taxonomy_term_field_data', 'ttd')
+        ->fields('ttd', array('name'));
+      $query1->condition('ttd.tid', $data->field_past_guest_category_target_id, '=');
+
+      $result1 = $query1->execute()->fetchField();
+      $result2 .= $result1;
+    }
+  }
+
+  return $result2;
+}
+
+/**
+ * Implements hook_page_attachments().
+ */
+function custom_example_page_attachments(array &$page) {
+  $site_url = \Drupal::request()->getSchemeAndHttpHost();
+
+  $rss = [
+    '#type' => 'html_tag',
+    '#tag' => 'link',
+    '#attributes' => [
+      'hreflang' => 'en',
+      'type' => 'application/rss+xml',
+      'rel' => 'alternate',
+      'href' => $site_url . '/customshow/rss',
+      'title' => 'Subscribe to BBSRadio Talkshows'
+    ],
+  ];
+  $page['#attached']['html_head'][] = [$rss, 'talkshow-rss'];
+}
+
+/**
+ * Implements hook_entity_operation().
+ */
+function custom_example_entity_operation(\Drupal\Core\Entity\EntityInterface $entity) {
+  $operations = [];
+  if ($entity->getEntityTypeId() == 'user') {
+    $operations['verify_resource'] = [
+      'title' => t('Verify/Un-Verify Resources'),
+      'url' => Url::fromRoute('custom_example.verify_manually', ['uid' => $entity->id()]),
+      'weight' => 100,
+    ];
+  }
+
+  return $operations;
+}
+
+/**
+ * Preprocess function for Paragraph Archive Media
+ *
+ * @param $variables
+ */
+function custom_example_preprocess_paragraph__archive_media(&$variables) {
+  $paragraph = $variables['paragraph'];
+
+  if ($paragraph == false) return;
+
+  $node = $paragraph->hasField('field_archive_description') && !$paragraph->get('field_archive_description')->isEmpty() ?
+    $paragraph->get('field_archive_description')->entity : false;
+
+  // Add the js for video and audio player
+  if ($node) {
+    $subscriptionAccessManager = \Drupal::service('subscription.access_manager');
+    $subscriptionMediaManager = \Drupal::service('subscription.media_manager');
+
+    $archive_medias = [];
+    if (($node->hasField('field_archive_delivered_file_up') && !$node->get('field_archive_delivered_file_up')->IsEmpty()) ||
+      ($node->hasField('field_archive_delivered_file_up_') && !$node->get('field_archive_delivered_file_up_')->IsEmpty())
+    ) {
+      if ($node->hasField('field_archive_delivered_file_up') && !$node->get('field_archive_delivered_file_up')->IsEmpty()) {
+        $delivered_file_up_1_arr = $node->get('field_archive_delivered_file_up')->view('full');
+        $delivered_file_up_1 = \Drupal::service('renderer')->renderRoot($delivered_file_up_1_arr);
+      }
+      else {
+        $delivered_file_up_1 = '';
+      }
+      if ($node->hasField('field_archive_delivered_file_up_') && !$node->get('field_archive_delivered_file_up_')->IsEmpty()) {
+        $delivered_file_up_2_arr = $node->get('field_archive_delivered_file_up_')->view('full');
+        $delivered_file_up_2 = \Drupal::service('renderer')->renderRoot($delivered_file_up_2_arr);
+      }
+      else {
+        $delivered_file_up_2 = '';
+      }
+      $delivered_file_up_button = $subscriptionMediaManager->getEmbeddedLink('delivered_file_up', $node->id());;
+      $delivered_file_up_download = $subscriptionMediaManager->getDownloadLink('delivered_mp3', $node->id());
+      $access_denied_message_mp3 = $subscriptionAccessManager->getPermissionDeniedMessage(PERM_DELIVERED_FILE_MP3, $node->id());
+      $his_permission_mp3 = $subscriptionAccessManager->hasArchivePermission(PERM_DELIVERED_FILE_MP3, $node->id());
+      $archive_medias['delivered_file_up'] = [
+        'label' => 'AM 1',
+        'media_1' => $delivered_file_up_1,
+        'media_2' => $delivered_file_up_2,
+        'button_link' => $delivered_file_up_button,
+        'download_link' => $delivered_file_up_download,
+        'access_denied_message' => $access_denied_message_mp3,
+        'has_permission' => $his_permission_mp3,
+      ];
+    }
+
+    if (($node->hasField('field_archive_uploaded_video') && !$node->get('field_archive_uploaded_video')->IsEmpty()) ||
+      ($node->hasField('field_archive_uploaded_video_') && !$node->get('field_archive_uploaded_video_')->IsEmpty())
+    ) {
+      if ($node->hasField('field_archive_uploaded_video') && !$node->get('field_archive_uploaded_video')->IsEmpty()) {
+        $uploaded_video_1_arr = $node->get('field_archive_uploaded_video')->view('full');
+        $uploaded_video_1 = \Drupal::service('renderer')->renderRoot($uploaded_video_1_arr);
+      }
+      else {
+        $uploaded_video_1 = '';
+      }
+      if ($node->hasField('field_archive_uploaded_video_') && !$node->get('field_archive_uploaded_video_')->IsEmpty()) {
+        $uploaded_video_2_arr = $node->get('field_archive_uploaded_video_')->view('full');
+        $uploaded_video_2 = \Drupal::service('renderer')->renderRoot($uploaded_video_2_arr);
+      }
+      else {
+        $uploaded_video_2 = '';
+      }
+      $uploaded_video_button = $subscriptionMediaManager->getEmbeddedLink('archive_uploaded_video', $node->id());;
+      $uploaded_video_download = $subscriptionMediaManager->getDownloadLink('produced_or_delivered_1', $node->id());
+      $access_denied_message_uploaded_video = $subscriptionAccessManager->getPermissionDeniedMessage(PERM_DELIVERED_FILE_MP3, $node->id());
+      $his_permission_uploaded_video = $subscriptionAccessManager->hasArchivePermission(PERM_DELIVERED_FILE_MP3, $node->id());
+      $archive_medias['uploaded_video'] = [
+        'label' => 'AM 2',
+        'media_1' => $uploaded_video_1,
+        'media_2' => $uploaded_video_2,
+        'button_link' => $uploaded_video_button,
+        'download_link' => $uploaded_video_download,
+        'access_denied_message' => $access_denied_message_uploaded_video,
+        'has_permission' => $his_permission_uploaded_video,
+      ];
+    }
+
+    if (($node->hasField('field_produced_or_delivered_pro2') && !$node->get('field_produced_or_delivered_pro2')->IsEmpty()) ||
+      ($node->hasField('field_produced_or_delivered_pro_') && !$node->get('field_produced_or_delivered_pro_')->IsEmpty())
+    ) {
+      if ($node->hasField('field_produced_or_delivered_pro2') && !$node->get('field_produced_or_delivered_pro2')->IsEmpty()) {
+        $produced_or_delivered_1_arr = $node->get('field_produced_or_delivered_pro2')->view('full');
+        $produced_or_delivered_1 = \Drupal::service('renderer')->renderRoot($produced_or_delivered_1_arr);
+      }
+      else {
+        $produced_or_delivered_1 = '';
+      }
+      if ($node->hasField('field_produced_or_delivered_pro_') && !$node->get('field_produced_or_delivered_pro_')->IsEmpty()) {
+        $produced_or_delivered_2_arr = $node->get('field_produced_or_delivered_pro_')->view('full');
+        $produced_or_delivered_2 = \Drupal::service('renderer')->renderRoot($produced_or_delivered_2_arr);
+      }
+      else {
+        $produced_or_delivered_2 = '';
+      }
+      $produced_or_delivered_pro_button = $subscriptionMediaManager->getEmbeddedLink('produced_or_delivered_pro', $node->id());;
+      $produced_or_delivered_pro_download = $subscriptionMediaManager->getDownloadLink('produced_or_delivered_2', $node->id());
+      $access_denied_message_video_pro = $subscriptionAccessManager->getPermissionDeniedMessage(PERM_PRODUCED_OR_DELIVERED_VIDEO, $node->id());
+      $has_permission_video_pro = $subscriptionAccessManager->hasArchivePermission(PERM_PRODUCED_OR_DELIVERED_VIDEO, $node->id());
+      $archive_medias['produced_or_delivered'] = [
+        'label' => 'AM 3',
+        'media_1' => $produced_or_delivered_1,
+        'media_2' => $produced_or_delivered_2,
+        'button_link' => $produced_or_delivered_pro_button,
+        'download_link' => $produced_or_delivered_pro_download,
+        'access_denied_message' => $access_denied_message_video_pro,
+        'has_permission' => $has_permission_video_pro,
+      ];
+    }
+
+    $variables['archive_medias'] = $archive_medias;
+    $variables['#attached']['library'][] =  'bbsradio_mp3_to_mp4/bbsradio_embed_js';
+    $variables['#cache']['max-age'] = 0;
+  }
+}
+
+/**
+ * Implements hook_cron().
+ */
+function custom_example_cron() {
+  // Check media stage on every 6 hours
+  $last_checked = \Drupal::state()->get('media_storage_profile.last_check', 0);
+  $current_time = strtotime('-2 hours');
+  $check_media_storage_profile = 1;
+  if ($last_checked >  $current_time) {
+    $check_media_storage_profile = 0;
+  }
+
+  if ($check_media_storage_profile) {
+    $request_time = \Drupal::time()->getRequestTime();
+    // We are only checking active profiles
+    $media_storage_manager = \Drupal::service('custom_example.media_storage_manager');
+    $media_profiles = $media_storage_manager->getMediaStorageProfiles(1);
+    foreach ($media_profiles as $media_profile) {
+      $media_location = $media_profile->media_location;
+      $schema_type = $media_profile->schema_type;
+
+      $media_location = rtrim($media_location, "/");
+      $media_location = rtrim($media_location, "\\");
+      if ($schema_type == 2) {
+        $media_location = 'private://' . $media_location;
+      }
+      else {
+        $media_location = 'public://' . $media_location;
+      }
+      $destination_abs_file_name = \Drupal::service('file_system')->realpath($media_location);
+
+      if (!empty($destination_abs_file_name) && file_exists($destination_abs_file_name)) {
+        // Get the storage size
+        $bytes = $media_storage_manager->dirSize($destination_abs_file_name);
+        // Format the storage size
+        $size_format = $media_storage_manager->byteFormat($bytes);
+        // Save to profile
+        $media_storage_manager->setMediaCurrentStorage($media_profile->profile_id, $size_format);
+      }
+    }
+    \Drupal::state()->set('media_storage_profile.last_check', $request_time);
+  }
+}
